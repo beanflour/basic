@@ -29,16 +29,9 @@ namespace BF
 		virtual void exit() = 0;
 		HANDLE	hThread;
 		bool	bRunThread;
-		//int		a;
 	};
 
 	typedef std::list<CThread*>	CONT_pThread;
-
-	//BFThreadMgr* BFThreadMgr::getInstance()
-	//{
-	//	static BFThreadMgr tempThreadMgr;
-	//	return &tempThreadMgr;
-	//}
 
 	class CThreadMgr
 	{
