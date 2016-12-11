@@ -18,6 +18,12 @@ namespace BF
 		};
 	}
 #pragma pack(1)
+	/*
+		패킷타입은 따로 구분되어 관리된다. GetPacketType을 사용하여 얻어와 구분할 수 있다.
+		데이터를 집어넣을때는 Append와 << 뺄 때는 Pull과 >>를 사용한다.
+		직렬화된 데이터를 얻을때는 GetData를 사용하며 직렬화된 데이터의 총 길이는 GetReturnDataSize를 사용한다.
+		패킷을 사용하여 직렬화된 데이터를 패킷에 집어넣을 때에는 AddData를 사용한다.
+	*/
 	class CPacket
 	{
 		typedef std::vector<char>	CONT_STR;
@@ -27,6 +33,29 @@ namespace BF
 		CPacket(CPacket const &_Packet);
 		~CPacket(void);
 
+		//////////////////////////////////////////////////////////////////////////
+		///	Clear Packet													   ///
+		//////////////////////////////////////////////////////////////////////////
+		void Clear();
+
+		//////////////////////////////////////////////////////////////////////////
+		///	GetData															   ///
+		//////////////////////////////////////////////////////////////////////////
+		char*		GetData();
+
+		//////////////////////////////////////////////////////////////////////////
+		///	Get Packet information											   ///
+		//////////////////////////////////////////////////////////////////////////
+		ULONG64	const	GetPacketType() const;
+		int const		GetReturnDataSize() const;
+		E_PACKET_ERROR::Enum		AddData(char * _strData);
+	private:
+		bool		CheckSize(unsigned int _iSize) const;
+		bool		CheckSize(ULONG64 _iSize) const;
+		int const	GetDataSize() const;
+		void		Reserve(ULONG64 const reserve_size);
+
+	public:
 		//////////////////////////////////////////////////////////////////////////
 		///	Append Data														   ///
 		//////////////////////////////////////////////////////////////////////////
@@ -46,9 +75,6 @@ namespace BF
 		void Append(char const &_Data);
 		void Append(wchar_t &_Data);
 		void Append(wchar_t const &_Data);
-		
-		//void Append(char *pData);
-		//void Append(char const *pData);
 
 		void Append(char const *pData);
 		void Append(char *pData);
@@ -104,11 +130,7 @@ namespace BF
 			int const nPrevSize = m_ContData.size();
 			int const nDataSize = static_cast<LONG>(unSize) * sizeof(std::string::value_type);
 			m_ContData.resize(nPrevSize + nDataSize);
-			::memcpy(&m_ContData[nPrevSize], &_Data[0], nDataSize);
-
-			//this->Append(_Data.c_str(), unSize * sizeof(std::string::value_type));
-			//this->Append(&_Data[0], unSize * sizeof(std::string::value_type));
-			
+			::memcpy(&m_ContData[nPrevSize], &_Data[0], nDataSize);			
 		}
 
 		template<>
@@ -123,11 +145,6 @@ namespace BF
 			int const nDataSize = static_cast<LONG>(unSize) * sizeof(std::wstring::value_type);
 			m_ContData.resize(nPrevSize + nDataSize);
 			::memcpy(&m_ContData[nPrevSize], &_Data[0], nDataSize);
-			/*for(auto Data : _Data)
-			{
-				*this << Data;
-			}*/
-			//this->Append(&_Data[0], unSize *sizeof(std::string::value_type));
 		}
 
 		template<typename T_VALUE>
@@ -145,8 +162,6 @@ namespace BF
 		template<typename T_KEY, typename T_VALUE>
 		void Append(std::map<T_KEY, T_VALUE> const &_MapData)
 		{
-			//typename std::map<T_KEY, T_VALUE>::value_type	ValueType;
-			//typename std::map<T_KEY, T_VALUE> MAP;
 			ULONG64 unSize = _MapData.size();
 			*this << unSize;
 
@@ -190,21 +205,6 @@ namespace BF
 			return Pull(&_OutPut, iOutPut_Size);
 		}
 
-		/*
-		//////////////////////////////////////////////////////////////////////////
-		//	패킷으로 데이터를 빼도 되나? 그게 의미가 있나?
-		//////////////////////////////////////////////////////////////////////////
-		template <>
-		bool Pull(CPacket &_OutPut)
-		{
-			_OutPut.m_iPacketType = this->m_iPacketType;
-			_OutPut.m_uiDataPos = this->m_uiDataPos;
-			_OutPut.m_ContData = this->m_ContData;
-
-			return true;
-		}
-		*/
-
 		template<typename T_VALUE>
 		bool Pull(std::vector<T_VALUE> &_ContData)
 		{
@@ -231,8 +231,6 @@ namespace BF
 			if(0 == unSize)
 				return false;
 
-			//_ContData.resize(static_cast<ULONG32>(unSize) * sizeof(std::list<T_VALUE>::value_type));
-			//for(int unIndex = 0; unIndex < static_cast<int>(unSize); unIndex++)
 			_ContData.clear();
 			for(int unIndex : range(0, static_cast<int>(unSize)))
 			{
@@ -295,29 +293,6 @@ namespace BF
 
 			return this->Pull(&_str[0], unLength);
 		}
-		
-		//////////////////////////////////////////////////////////////////////////
-		///	Clear Packet													   ///
-		//////////////////////////////////////////////////////////////////////////
-		void Clear();
-
-		//////////////////////////////////////////////////////////////////////////
-		///	GetData															   ///
-		//////////////////////////////////////////////////////////////////////////
-		//char const* GetData();
-		char*		GetData();
-
-		//////////////////////////////////////////////////////////////////////////
-		///	Get Packet information											   ///
-		//////////////////////////////////////////////////////////////////////////
-		ULONG64	const	GetPacketType() const;
-		int const		GetReturnDataSize() const;
-		bool		CheckSize(unsigned int _iSize) const;
-		bool		CheckSize(ULONG64 _iSize) const;
-		int const	GetDataSize() const;
-		void		Reserve(ULONG64 const reserve_size);
-
-		E_PACKET_ERROR::Enum		AddData(char * _strData);
 
 		//////////////////////////////////////////////////////////////////////////
 		///	Operator >>														   ///
