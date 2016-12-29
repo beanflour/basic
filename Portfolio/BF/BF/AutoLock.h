@@ -17,7 +17,8 @@ namespace BF
 	{
 		
 	public:
-		CAutoLock(ELockType::Enum const _LockType = ELockType::eAutoLock)
+		CAutoLock(CRITICAL_SECTION &_cs, ELockType::Enum const _LockType = ELockType::eAutoLock)
+			: m_cs(_cs)
 		{
 			InitializeCriticalSection(&m_cs);
 
@@ -39,6 +40,6 @@ namespace BF
 			LeaveCriticalSection(&m_cs);
 		}
 	private:
-		CRITICAL_SECTION m_cs;
+		CRITICAL_SECTION &m_cs;
 	};
 }

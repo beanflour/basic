@@ -42,6 +42,15 @@
     <ClInclude Include="AutoLock.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="WELL19937a.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="formatstdstring.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -56,5 +65,17 @@
     <ClCompile Include="Directory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="WELL19937a.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="formatstdstring.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BF.vcxproj" />
   </ItemGroup>
 </Project>

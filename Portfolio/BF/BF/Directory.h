@@ -2,12 +2,22 @@
 
 #include "common.h"
 
-DEFTYPE_STRING(STR_LOCAL, "Local")
-DEFTYPE_STRING(STR_EXE, ".exe")
-DEFTYPE_STRING(STR_DIVISION, "\\")
+DEFTYPE_STRING(D_STR_LOCAL, "Local")
+DEFTYPE_STRING(D_STR_EXE, ".exe")
+DEFTYPE_STRING(D_STR_DIVISION, "\\")
 
 namespace BF
 {
+	namespace E_CreateDirectory
+	{
+		enum Enum
+		{
+			low,	//	상위 디렉토리가 없으면 실패
+			deep,	//	상위 디렉토리까지 모로지 생성.
+		};
+	}
+
+	typedef std::vector<std::string>			CONT_STRING;
 
 	class CDirectory
 	{
@@ -22,6 +32,12 @@ namespace BF
 		void			SetLocalInfo();
 		bool			SetSaveDirectory(std::string const _strKey, std::string	const _strDirectory);
 		std::string		GetSaveDirectory(std::string const _strKey);
+
+		CONT_STRING		GetDirectoryInfo(std::string const _strPath = "" );
+		int			CreateDirectory(std::string _strPath, E_CreateDirectory::Enum const _type = E_CreateDirectory::low);
+		bool			AddBackSlash(std::string &_strPath);
+		
+		static CRITICAL_SECTION m_cs;
 	private:
 		CDirectory(void);
 
@@ -30,7 +46,6 @@ namespace BF
 		std::string		m_strFileName;
 
 		MAP_STRING		m_ContDirectory;
-		
 	};
 }
 
