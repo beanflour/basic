@@ -13,33 +13,46 @@ namespace BF
 		};
 	}
 
+	struct S_CS
+	{
+		S_CS()
+		{
+			InitializeCriticalSection(&m_cs);
+		}
+		~S_CS()
+		{
+			DeleteCriticalSection(&m_cs);
+		}
+		CRITICAL_SECTION m_cs;
+	};
+
 	class CAutoLock
 	{
 		
 	public:
-		CAutoLock(CRITICAL_SECTION &_cs, ELockType::Enum const _LockType = ELockType::eAutoLock)
-			: m_cs(_cs)
+		CAutoLock(S_CS &_cs, ELockType::Enum const _LockType = ELockType::eAutoLock)
+			: CS(_cs)
 		{
-			InitializeCriticalSection(&m_cs);
+			InitializeCriticalSection(&CS.m_cs);
 
 			if(ELockType::eAutoLock == _LockType)
-				EnterCriticalSection(&m_cs);
+				EnterCriticalSection(&CS.m_cs);
 		}
 		~CAutoLock()
 		{
-			LeaveCriticalSection(&m_cs);
+			LeaveCriticalSection(&CS.m_cs);
 		}
 
 		void Lock()
 		{
-			EnterCriticalSection(&m_cs);
+			EnterCriticalSection(&CS.m_cs);
 		}
 
 		void UnLock()
 		{
-			LeaveCriticalSection(&m_cs);
+			LeaveCriticalSection(&CS.m_cs);
 		}
 	private:
-		CRITICAL_SECTION &m_cs;
+		S_CS &CS;
 	};
 }

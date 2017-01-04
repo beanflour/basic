@@ -11,7 +11,7 @@
 
 namespace BF
 {
-	CRITICAL_SECTION CDirectory::m_cs;
+	S_CS CDirectory::m_cs;
 
 	CDirectory&		CDirectory::getinstance()
 	{

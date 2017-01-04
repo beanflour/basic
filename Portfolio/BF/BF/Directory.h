@@ -8,6 +8,8 @@ DEFTYPE_STRING(D_STR_DIVISION, "\\")
 
 namespace BF
 {
+	struct S_CS;
+
 	namespace E_CreateDirectory
 	{
 		enum Enum
@@ -37,7 +39,7 @@ namespace BF
 		int			CreateDirectory(std::string _strPath, E_CreateDirectory::Enum const _type = E_CreateDirectory::low);
 		bool			AddBackSlash(std::string &_strPath);
 		
-		static CRITICAL_SECTION m_cs;
+		static S_CS m_cs;
 	private:
 		CDirectory(void);
 

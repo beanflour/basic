@@ -16,3 +16,31 @@
 
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "Rpcrt4.lib")
+
+//#if !defined(AFX_STDAFX_H__7EE7EAAB_0239_11D5_9E98_00105A8056E8__INCLUDED_)
+//#define AFX_STDAFX_H__7EE7EAAB_0239_11D5_9E98_00105A8056E8__INCLUDED_
+//
+//
+//#if _MSC_VER > 1000
+//#pragma once
+//#endif // _MSC_VER > 1000
+//
+//
+//#define VC_EXTRALEAN // Windows 헤더로부터 대부분 사용되지 않는 스탭을 제외합니다.
+//
+//
+//#include <afxwin.h> // MFC 의 코어 및 표준 컴퍼넌트
+//#include <afxext.h> // MFC 의 확장 부분
+//#include <afxdtctl.h> // MFC 의 Internet Explorer 4 코먼 컨트롤 서포트
+//#ifndef _AFX_NO_AFXCMN_SUPPORT
+//#include <afxcmn.h> // MFC 의 Windows 코먼 컨트롤 서포트
+//#endif // _AFX_NO_AFXCMN_SUPPORT
+//
+//
+//
+//
+//
+//#import "C:\Program Files\Common Files\System\ado\msado15.dll" no_namespace rename("EOF", "adoEOF")
+//
+//
+//#endif // !defined(AFX_STDAFX_H__7EE7EAAB_0239_11D5_9E98_00105A8056E8__INCLUDED_)
