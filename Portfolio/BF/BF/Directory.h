@@ -19,7 +19,6 @@ namespace BF
 		};
 	}
 
-	typedef std::vector<std::string>			CONT_STRING;
 
 	class CDirectory
 	{

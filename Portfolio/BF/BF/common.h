@@ -24,3 +24,7 @@
 #include <queue>
 #include <windows.h>
 #include <string>
+
+typedef std::vector<std::string>			CONT_STRING;
+
+DEFTYPE_STRING(D_STR_ADD_COMMA, ", ")
