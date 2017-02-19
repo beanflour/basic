@@ -51,9 +51,6 @@
     <ClInclude Include="formatstdstring.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MSDB\AdoDB.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="AdoDB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -80,10 +77,7 @@
     <ClCompile Include="formatstdstring.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="MSDB\AdoDB.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="MSDB\AdoDB.cpp">
+    <ClCompile Include="AdoDB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

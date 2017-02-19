@@ -30,6 +30,7 @@ namespace BF
 		static CLog& getinstance();
 
 		void	AddLog(std::string _str);
+		void	AddLog(std::wstring _wstr);
 		static S_CS m_cs;
 	private:
 

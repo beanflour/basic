@@ -43,6 +43,17 @@ namespace BF
 
 		return true;
 	}
+	bool CAdoDB::InitDB(std::wstring _wstrUserId, std::wstring _wstrPassWord, std::wstring _wstrDbIp, std::wstring _wstrDbName, std::wstring _wstrPort)
+	{
+		std::string strUserId, strPassWord, strDbIp, strDbName, strPort;
+		strUserId.assign(_wstrUserId.begin(), _wstrUserId.end());
+		strPassWord.assign(_wstrPassWord.begin(), _wstrPassWord.end());
+		strDbIp.assign(_wstrDbIp.begin(), _wstrDbIp.end());
+		strDbName.assign(_wstrDbName.begin(), _wstrDbName.end());
+		strPort.assign(_wstrPort.begin(), _wstrPort.end());
+
+		return this->InitDB(strUserId, strPassWord, strDbIp, strDbName, strPort);
+	}
 	void CAdoDB::ReleaseDB()
 	{
 		m_pComm = NULL;
@@ -72,12 +83,30 @@ namespace BF
 
 		return true;
 	}
+	bool CAdoDBMgr::OpenDB(std::wstring const _wstrUserId, std::wstring const _wstrPassWord, std::wstring const _wstrDbIp, std::wstring const _wstrDbName, std::wstring const _wstrPort)
+	{
+		if(false == m_AdoDB.InitDB(_wstrUserId, _wstrPassWord, _wstrDbIp, _wstrDbName, _wstrPort))
+		{
+			BF_LOG.AddLog("DB Open Error");
+			return false;
+		}
 
+		return true;
+	}
 	void CAdoDBMgr::QueryReady(std::string const _strQuery)
 	{
 		m_strQuery.clear();
 		m_bAddParameter = false;
 		m_strQuery = _strQuery + " ";
+	}
+	void CAdoDBMgr::QueryReady(std::wstring const _wstrQuery)
+	{
+		m_strQuery.clear();
+		m_bAddParameter = false;
+
+		std::string strTemp;
+		strTemp.assign(_wstrQuery.begin(), _wstrQuery.end());
+		m_strQuery = strTemp + " ";
 	}
 
 #pragma region AddParameter
@@ -262,21 +291,32 @@ namespace BF
 		}
 
 		long const cnRow = TempRs->Fields->Count;
-
+#ifdef UNICODE
+		wchar_t wstrTemp[_MAX_PATH] = {L'\0',};
+#else
 		char strTemp[_MAX_PATH] = {'\0',};
+#endif
 		_variant_t	vtColum;
 		_variant_t	vtNull;	vtNull.ChangeType(VT_NULL);
 
 		for(long nIndex = 0; nIndex < cnRow; nIndex++)
 		{
-			::ZeroMemory(strTemp, _MAX_PATH);
 			vtColum = TempRs->Fields->GetItem(nIndex)->Name;
 			vtColum.ChangeType(VT_BSTR);
-
+			std::string stringTemp;
+#ifdef UNICODE
+			::ZeroMemory(wstrTemp, sizeof(wchar_t) * _MAX_PATH);
+			::wcsncpy_s(wstrTemp, (_bstr_t)vtColum, _MAX_PATH -1);
+			std::wstring wstringTemp = wstrTemp;
+			stringTemp.assign(wstringTemp.begin(), wstringTemp.end());
+#else
+			::ZeroMemory(strTemp, _MAX_PATH);
 			::StrCpyN(strTemp, (_bstr_t)vtColum, _MAX_PATH -1);
-			std::string strTemp = strTemp;
-			if(!strTemp.empty())
-				m_contReturnName.push_back(std::string(strTemp));
+			stringTemp = strTemp;
+#endif
+			if(!stringTemp.empty())
+				m_contReturnName.push_back(stringTemp);
+			
 		}
 
 		while(!TempRs->adoEOF)
@@ -292,8 +332,19 @@ namespace BF
 				{
 					vtColum.ChangeType(VT_BSTR);
 				}
+				std::string stringTemp;
+#ifdef UNICODE	//	유니코드일때. wchar_t에서 char로 바꿔서 저장.
+				::ZeroMemory(wstrTemp, sizeof(wchar_t) * _MAX_PATH);
+				::wcsncpy_s(wstrTemp, (_bstr_t)vtColum, _MAX_PATH - 1);
+				std::wstring wstringTemp = wstrTemp;
+				stringTemp.assign(wstringTemp.begin(), wstringTemp.end());
+#else
+				::ZeroMemory(strTemp, _MAX_PATH);
 				::StrCpyN(strTemp, (_bstr_t)vtColum, _MAX_PATH -1);
-				m_contReturnValue.push_back(std::string(strTemp));
+				stringTemp = strTemp;
+#endif
+				if(!stringTemp.empty())
+					m_contReturnValue.push_back(stringTemp);
 			}
 			TempRs->MoveNext();
 		}

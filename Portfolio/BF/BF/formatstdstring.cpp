@@ -9,7 +9,7 @@ namespace BF
 	{
 		if (!fmt) return "";
 		int   result = -1, length = 256;
-		char *buffer = 0;
+		char *buffer = nullptr;
 		while (result == -1)
 		{
 			if (buffer) delete [] buffer;
@@ -22,12 +22,37 @@ namespace BF
 		delete [] buffer;
 		return s;
 	}
+	std::wstring format_arg_list(const wchar_t *fmt, va_list args)
+	{
+		if (!fmt) return L"";
+		int   result = -1, length = 256;
+		wchar_t *buffer = nullptr;
+		while (result == -1)
+		{
+			if (buffer) delete [] buffer;
+			buffer = new wchar_t [length + 1];
+			memset(buffer, 0, sizeof(wchar_t) *(length + 1));
+			result = _vsnwprintf(buffer, length, fmt, args);
+			length *= 2;
+		}
+		std::wstring s(buffer);
+		delete [] buffer;
+		return s;
+	}
 
 	std::string format(const char *fmt, ...)
 	{
 		va_list args;
 		va_start(args, fmt);
 		std::string s = format_arg_list(fmt, args);
+		va_end(args);
+		return s;
+	}
+	std::wstring format(const wchar_t *fmt, ...)
+	{
+		va_list args;
+		va_start(args, fmt);
+		std::wstring s = format_arg_list(fmt, args);
 		va_end(args);
 		return s;
 	}

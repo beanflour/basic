@@ -45,8 +45,11 @@ namespace BF
 			,	ptime->tm_sec
 			);
 		m_strPath = strDirectoryPath + D_STR_DIVISION + strSec + D_LOG_EX;
-
+#ifdef UNICODE
+		switch(_sopen_s(&m_nfh, m_strPath.c_str(), _O_CREAT | _O_APPEND | _O_WRONLY | _O_U16TEXT, SH_DENYNO, _S_IWRITE))
+#else
 		switch(_sopen_s(&m_nfh, m_strPath.c_str(), _O_CREAT | _O_APPEND | _O_WRONLY, SH_DENYNO, _S_IWRITE))
+#endif
 		{
 		case EACCES:
 			{
@@ -101,7 +104,32 @@ namespace BF
 
 		std::string strData = format("%02d:%02d:%02d = ", ptime->tm_hour, ptime->tm_min, ptime->tm_sec);	//	로그엔 시간:분:초 : 로그 단위로 기록
 		strData += _str + "\n";
-
+#ifdef UNICODE
+		std::wstring wstrTemp;
+		wstrTemp.assign(strData.begin(), strData.end());
+		_write(m_nfh, wstrTemp.c_str(), sizeof(wchar_t) * wcslen(wstrTemp.c_str()));
+#else
 		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
+
+#endif
+	}
+	void	CLog::AddLog(std::wstring _wstr)
+	{
+		if(false == bFileOpen)
+			return ;
+
+		time_t tTemp;
+		struct tm *ptime;
+		time(&tTemp);
+		ptime	= localtime(&tTemp);
+		std::wstring wstrData = format(L"%02d:%02d:%02d = ", ptime->tm_hour, ptime->tm_min, ptime->tm_sec);
+		wstrData += _wstr + L"\n";
+#ifdef UNICODE
+		_write(m_nfh, wstrData.c_str(), sizeof(wchar_t) * wcslen(wstrData.c_str()));
+#else
+		std::string strData;
+		strData.assign(wstrData.begin(), wstrData.end());
+		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
+#endif
 	}
 }

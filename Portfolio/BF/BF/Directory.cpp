@@ -46,9 +46,20 @@ namespace BF
 
 	void		CDirectory::SetLocalInfo()
 	{
-		char	sTempBuf[_MAX_PATH] = {NULL,};
+#ifdef UNICODE
+		wchar_t	sTempBuf[_MAX_PATH] = {NULL,};
+#else
+		char sTempBuf[_MAX_PATH] = {NULL,};
+#endif
+
 		::GetModuleFileName(NULL, sTempBuf, _MAX_PATH);
+
+#ifdef UNICODE
+		std::wstring wstrTemp = sTempBuf;
+		m_strLocalDirectory.assign(wstrTemp.begin(), wstrTemp.end());
+#else
 		m_strLocalDirectory = sTempBuf;
+#endif
 
 		m_strFileName = m_strLocalDirectory.substr(m_strLocalDirectory.rfind(D_STR_DIVISION) + 1, m_strLocalDirectory.length());
 		m_strFileName = m_strFileName.substr(0, m_strFileName.find(D_STR_EXE));

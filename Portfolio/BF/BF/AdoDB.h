@@ -50,6 +50,7 @@ namespace BF
 		~CAdoDB(void);
 
 		bool InitDB(std::string _strUserId, std::string _strPassWord, std::string _strDbIp, std::string _strDbName, std::string _strPort);
+		bool InitDB(std::wstring _wstrUserId, std::wstring _wstrPassWord, std::wstring _wstrDbIp, std::wstring _wstrDbName, std::wstring _wstrPort);
 		void ReleaseDB();
 	public:
 		_ConnectionPtr m_pConn; 
@@ -80,7 +81,9 @@ namespace BF
 		~CAdoDBMgr();
 
 		bool OpenDB(std::string const _strUserId, std::string const _strPassWord, std::string const _strDbIp, std::string const _strDbName, std::string const _strPort);
+		bool OpenDB(std::wstring const _wstrUserId, std::wstring const _wstrPassWord, std::wstring const _wstrDbIp, std::wstring const _wstrDbName, std::wstring const _wstrPort);
 		void QueryReady(std::string const _strQuery);
+		void QueryReady(std::wstring const _wstrQuery);
 
 		void AddParameter(int &_Data);
 		void AddParameter(int const &_Data);
