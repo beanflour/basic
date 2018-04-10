@@ -2,8 +2,9 @@
 
 #include "common.h"
 
-DEFTYPE_STRING(D_LOG_EX, ".Log");
-DEFTYPE_STRING(D_LOG_STRING, "LOG");
+DEFTYPE_STRING(D_LOG_EX, ".Log")
+DEFTYPE_STRING(D_LOG_STRING, "LOG")
+DEFTYPE_INT(D_MAX_LEN, 1024)
 
 namespace BF
 {
@@ -25,10 +26,13 @@ namespace BF
 	class CLog
 	{
 	public:
+		
 		~CLog(void);
 
 		static CLog& getinstance();
 
+		void	AddLog(char *_fmt, ...);
+		//void	AddLog(WCHAR *_fmt, ...);
 		void	AddLog(std::string _str);
 		void	AddLog(std::wstring _wstr);
 		static S_CS m_cs;

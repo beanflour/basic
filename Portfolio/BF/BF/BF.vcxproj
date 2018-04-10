@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -19,14 +19,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -80,9 +80,12 @@
   <ItemGroup>
     <ClInclude Include="AdoDB.h" />
     <ClInclude Include="Directory.h" />
+    <ClInclude Include="FileMgr.h" />
     <ClInclude Include="formatstdstring.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Packet.h" />
+    <ClInclude Include="PoolBase.h" />
+    <ClInclude Include="PoolMgr.h" />
     <ClInclude Include="Range.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="common.h" />
@@ -93,10 +96,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
+    <ClCompile Include="FileMgr.cpp" />
     <ClCompile Include="formatstdstring.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="AdoDB.cpp" />
     <ClCompile Include="Packet.cpp" />
+    <ClCompile Include="PoolMgr.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -106,6 +111,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="BF.vcxproj" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

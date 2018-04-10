@@ -26,6 +26,14 @@ namespace BF
 
 	CPacket::~CPacket(void)
 	{
+		Clear();
+	}
+	void CPacket::Clear()
+	{
+		m_uiPacketType = 0;
+		m_uiDataPos = 0;
+		m_ContData.clear();
+		ReturnData.clear();
 	}
 #pragma endregion
 
@@ -42,6 +50,12 @@ namespace BF
 		m_ContData.resize(nPrevSize + sizeof(int));
 		memcpy(&m_ContData[nPrevSize], &_Data, sizeof(int));
 	}
+	//void CPacket::Append(unsigned int & _Data)
+	//{
+	//	int const nPrevSize = m_ContData.size();
+	//	m_ContData.resize(nPrevSize + sizeof(unsigned int));
+	//	memcpy(&m_ContData[nPrevSize], &_Data, sizeof(unsigned int));
+	//}
 	void CPacket::Append(ULONG32 &_Data)
 	{
 		int const nPrevSize = m_ContData.size();

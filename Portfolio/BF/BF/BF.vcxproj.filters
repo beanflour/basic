@@ -54,6 +54,15 @@
     <ClInclude Include="AdoDB.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="PoolMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PoolBase.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FileMgr.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -80,8 +89,15 @@
     <ClCompile Include="AdoDB.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="PoolMgr.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FileMgr.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="BF.vcxproj" />
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

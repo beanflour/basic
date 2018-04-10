@@ -4,11 +4,14 @@
 #include "Directory.h"
 #include <time.h>
 #include "formatstdstring.h"
-#include "FileMgr.h"
+//#include "FileMgr.h"
 #include <iostream>
 #include <io.h>
 #include <fcntl.h>
 #include <sys\stat.h>
+#include <locale.h>
+#include <AtlConv.h>
+#include <stdio.h>
 
 
 #pragma warning(disable:4996)
@@ -21,6 +24,9 @@ namespace BF
 		,	bFileOpen(false)
 		,	eform(ELogForm::Sec)
 	{
+#ifdef UNICODE
+		_wsetlocale(LC_ALL, L"korean");
+#endif
 		std::string strDirectoryPath, strDay, strSec;
 
 		time_t tTemp;
@@ -92,6 +98,17 @@ namespace BF
 		return temp;
 	}
 
+	void	CLog::AddLog(char *_fmt, ...)
+	{
+		char str[D_MAX_LEN] = { '\0' };
+		va_list ap;
+		va_start(ap, _fmt);
+		vsprintf(str, _fmt, ap);
+		va_end(ap);
+		std::string strData(str);
+		AddLog(strData);
+	}
+
 	void	CLog::AddLog(std::string _str)
 	{
 		if(false == bFileOpen)
@@ -105,8 +122,9 @@ namespace BF
 		std::string strData = format("%02d:%02d:%02d = ", ptime->tm_hour, ptime->tm_min, ptime->tm_sec);	//	로그엔 시간:분:초 : 로그 단위로 기록
 		strData += _str + "\n";
 #ifdef UNICODE
-		std::wstring wstrTemp;
-		wstrTemp.assign(strData.begin(), strData.end());
+		USES_CONVERSION;
+		std::wstring wstrTemp(A2W(strData.c_str()));
+		//wstrTemp.assign(strData.begin(), strData.end());
 		_write(m_nfh, wstrTemp.c_str(), sizeof(wchar_t) * wcslen(wstrTemp.c_str()));
 #else
 		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
@@ -127,8 +145,9 @@ namespace BF
 #ifdef UNICODE
 		_write(m_nfh, wstrData.c_str(), sizeof(wchar_t) * wcslen(wstrData.c_str()));
 #else
-		std::string strData;
-		strData.assign(wstrData.begin(), wstrData.end());
+		USES_CONVERSION;
+		std::string strData(W2A(wstrData.c_str()));
+		//strData.assign(wstrData.begin(), wstrData.end());
 		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
 #endif
 	}

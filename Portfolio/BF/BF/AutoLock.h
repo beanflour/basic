@@ -33,7 +33,7 @@ namespace BF
 		CAutoLock(S_CS &_cs, ELockType::Enum const _LockType = ELockType::eAutoLock)
 			: CS(_cs)
 		{
-			InitializeCriticalSection(&CS.m_cs);
+			//InitializeCriticalSection(&CS.m_cs);
 
 			if(ELockType::eAutoLock == _LockType)
 				EnterCriticalSection(&CS.m_cs);
