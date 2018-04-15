@@ -8,6 +8,8 @@
 #include "AutoLock.h"
 
 #include <bitset>
+#include <tchar.h>
+
 
 namespace BF
 {
@@ -29,46 +31,9 @@ namespace BF
 	{
 	}
 
-	std::string	CDirectory::GetLocalDirectory()
-	{
-		if(m_strLocalDirectory.empty())
-			this->SetLocalInfo();
-		
-		return m_strLocalDirectory;
-	}
-
-	std::string CDirectory::GetFileName()
-	{
-		if(m_strFileName.empty())
-			this->SetLocalInfo();
-		return m_strFileName;
-	}
-
-	void		CDirectory::SetLocalInfo()
-	{
-#ifdef UNICODE
-		wchar_t	sTempBuf[_MAX_PATH] = {NULL,};
-#else
-		char sTempBuf[_MAX_PATH] = {NULL,};
-#endif
-
-		::GetModuleFileName(NULL, sTempBuf, _MAX_PATH);
-
-#ifdef UNICODE
-		std::wstring wstrTemp = sTempBuf;
-		m_strLocalDirectory.assign(wstrTemp.begin(), wstrTemp.end());
-#else
-		m_strLocalDirectory = sTempBuf;
-#endif
-
-		m_strFileName = m_strLocalDirectory.substr(m_strLocalDirectory.rfind(D_STR_DIVISION) + 1, m_strLocalDirectory.length());
-		m_strFileName = m_strFileName.substr(0, m_strFileName.find(D_STR_EXE));
-		m_strLocalDirectory = m_strLocalDirectory.substr(0, m_strLocalDirectory.rfind(D_STR_DIVISION));
-	}
-
 	bool	CDirectory::SetSaveDirectory(std::string const _strKey, std::string	const _strDirectory)
 	{
-		if(m_ContDirectory.insert(MAP_STRING::value_type(_strKey, _strDirectory)).second)
+		if(mCont_Directory.insert(MAP_STRING::value_type(_strKey, _strDirectory)).second)
 			return true;
 		else
 			return false;
@@ -77,8 +42,8 @@ namespace BF
 	std::string		CDirectory::GetSaveDirectory(std::string const _strKey)
 	{
 		std::string	tempStr;
-		MAP_STRING::iterator	Iter = 	m_ContDirectory.find(_strKey);
-		if( m_ContDirectory.end() != Iter)
+		MAP_STRING::iterator	Iter = 	mCont_Directory.find(_strKey);
+		if( mCont_Directory.end() != Iter)
 		{
 			tempStr = Iter->second;
 		}
@@ -90,7 +55,7 @@ namespace BF
 		CONT_STRING ContReturn;
 		std::string strPath;
 		if(_strPath.empty())
-			strPath = this->GetLocalDirectory();
+			strPath = this->GetMyFullDirectoryA().c_str();
 		else
 			strPath = _strPath;
 
@@ -122,7 +87,8 @@ namespace BF
 	{
 		if(std::string::npos == _strPath.rfind(D_STR_DIVISION))	//	\\가 경로에 없을 경우. 즉 만들 디랙토리명만 입력했을 경우
 		{
-			_strPath = this->GetLocalDirectory() + D_STR_DIVISION + _strPath;
+			std::string strTemp = this->GetMyFullDirectoryA().c_str();
+			_strPath = strTemp + _strPath;
 		}
 
 		std::string strPrevPath = _strPath.substr(0, _strPath.rfind(D_STR_DIVISION));
@@ -146,5 +112,187 @@ namespace BF
 		}
 
 		return false;
+	}
+
+	STRING	CDirectory::GetMyFullPath() const
+	{
+		return mstr_MyFullPath;
+	}
+	STRING	CDirectory::GetMyDrive() const
+	{
+		return mstr_MyDrive;
+	}
+	STRING	CDirectory::GetMyDirectory() const
+	{
+		return mstr_MyDirectory;
+	}
+	STRING	CDirectory::GetMyFullDirectory() const
+	{
+		return mstr_MyFullDirectory;
+	}
+	STRING	CDirectory::GetMyName() const
+	{
+		return mstr_MyName;
+	}
+	STRING	CDirectory::GetMyExt() const
+	{
+		return mstr_MyExt;
+	}
+#ifdef _UNICODE
+	std::string	CDirectory::GetMyFullPathA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyFullPath.empty())
+		{
+			wstr.assign(mstr_MyFullPath.begin(), mstr_MyFullPath.end());
+		}
+		return wstr;
+	}
+	std::string	CDirectory::GetMyDriveA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyDrive.empty())
+		{
+			wstr.assign(mstr_MyDrive.begin(), mstr_MyDrive.end());
+		}
+		return wstr;
+	}
+	std::string	CDirectory::GetMyDirectoryA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyDirectory.empty())
+		{
+			wstr.assign(mstr_MyDirectory.begin(), mstr_MyDirectory.end());
+		}
+		return wstr;
+	}
+	std::string	CDirectory::GetMyFullDirectoryA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyFullDirectory.empty())
+		{
+			wstr.assign(mstr_MyFullDirectory.begin(), mstr_MyFullDirectory.end());
+		}
+		return wstr;
+	}
+	std::string	CDirectory::GetMyNameA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyName.empty())
+		{
+			wstr.assign(mstr_MyName.begin(), mstr_MyName.end());
+		}
+		return wstr;
+	}
+	std::string	CDirectory::GetMyExtA() const
+	{
+		std::string wstr = "";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyExt.empty())
+		{
+			wstr.assign(mstr_MyExt.begin(), mstr_MyExt.end());
+		}
+		return wstr;
+	}
+#else
+	std::wstring CDirectory::GetMyFullPathW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyFullPath.empty())
+		{
+			wstr.assign(mstr_MyFullPath.begin(), mstr_MyFullPath.end());
+		}
+		return wstr;
+	}
+	std::wstring CDirectory::GetMyDriveW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyDrive.empty())
+		{
+			wstr.assign(mstr_MyDrive.begin(), mstr_MyDrive.end());
+		}
+		return wstr;
+	}
+	std::wstring CDirectory::GetMyDirectoryW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyDirectory.empty())
+		{
+			wstr.assign(mstr_MyDirectory.begin(), mstr_MyDirectory.end());
+		}
+		return wstr;
+	}
+	std::wstring CDirectory::GetMyFullDirectoryW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyFullDirectory.empty())
+		{
+			wstr.assign(mstr_MyFullDirectory.begin(), mstr_MyFullDirectory.end());
+		}
+		return wstr;
+	}
+
+	std::wstring CDirectory::GetMyNameW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyName.empty())
+		{
+			wstr.assign(mstr_MyName.begin(), mstr_MyName.end());
+		}
+		return wstr;
+	}
+	std::wstring CDirectory::GetMyExtW() const
+	{
+		std::wstring wstr = L"";
+		// 값이 없을때 그냥 리턴
+		if (!mstr_MyExt.empty())
+		{
+			wstr.assign(mstr_MyExt.begin(), mstr_MyExt.end());
+		}
+		return wstr;
+	}
+#endif
+
+	bool CDirectory::InitMyInfo()
+	{
+		if(!mstr_MyFullPath.empty())	//	이게 비어있지 않다면 이미 해당정보를 갖고 있으므로 다시 실행할 필요 없음.
+			return true;
+
+		mstr_MyFullPath.resize(_MAX_PATH);
+		mstr_MyDrive.resize(_MAX_DRIVE);
+		mstr_MyDirectory.resize(_MAX_DIR);
+		mstr_MyName.resize(_MAX_FNAME);
+		mstr_MyExt.resize(_MAX_EXT);
+
+		GetModuleFileName(NULL, &mstr_MyFullPath[0], 260);
+		switch(SPLITPATH(mstr_MyFullPath.c_str(), &mstr_MyDrive[0], _MAX_DRIVE, &mstr_MyDirectory[0], _MAX_DIR, &mstr_MyName[0], _MAX_FNAME, &mstr_MyExt[0], _MAX_EXT))
+		{
+			case EINVAL:
+			{
+				FPRINTF(stderr, _T("에러\n"));
+				return false;
+			}break;
+			case ERANGE:
+			{
+				FPRINTF(stderr, _T("버퍼 오버플로우\n"));
+				return false;
+			}break;
+			default:
+			{
+			}
+		}
+		STRING str = mstr_MyDrive.c_str();
+		mstr_MyFullDirectory = str + mstr_MyDirectory.c_str();
+		return true;
 	}
 }

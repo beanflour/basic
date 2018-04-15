@@ -80,7 +80,6 @@
   <ItemGroup>
     <ClInclude Include="AdoDB.h" />
     <ClInclude Include="Directory.h" />
-    <ClInclude Include="FileMgr.h" />
     <ClInclude Include="formatstdstring.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Packet.h" />
@@ -96,7 +95,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
-    <ClCompile Include="FileMgr.cpp" />
     <ClCompile Include="formatstdstring.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="AdoDB.cpp" />

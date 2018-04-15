@@ -19,6 +19,7 @@
 namespace BF
 {
 	S_CS CLog::m_cs;
+
 	CLog::CLog(void)
 		:	m_nfh(0)
 		,	bFileOpen(false)
@@ -34,19 +35,23 @@ namespace BF
 		time(&tTemp);
 		ptime	= localtime(&tTemp);
 		
-		strDay = format("Log_%d_%d_%d", ptime->tm_year + 1900
+		strDay = format("Log_%d_%02d_%02d", ptime->tm_year + 1900
 			,	ptime->tm_mon + 1
 			,	ptime->tm_mday
 			);
 
-		strDirectoryPath = BF_DIRECTORY.GetLocalDirectory() + D_STR_DIVISION + D_LOG_STRING + D_STR_DIVISION + strDay;
+		BF_DIRECTORY.InitMyInfo();
+
+		std::string strTemp = BF_DIRECTORY.GetMyFullDirectoryA().c_str();
+		strDirectoryPath = strTemp + D_LOG_STRING + D_STR_DIVISION + strDay;
 			
 		if(-1 == _access(D_LOG_STRING, 0))				//	LOG 폴더가 없을 경우 새로 만듬
 			BF_DIRECTORY.CreateDirectory(D_LOG_STRING);
 		if(-1 == _access(strDirectoryPath.c_str(), 0))	//	폴더가 없을 경우 새로 만듬 폴더명은 Log_년_월_일
 			BF_DIRECTORY.CreateDirectory(strDirectoryPath.c_str());
 
-		strSec = format("%d_%d_%d", ptime->tm_hour
+		strSec = format("%s_%02d_%02d_%02d", BF_DIRECTORY.GetMyNameA().c_str()
+			,	ptime->tm_hour
 			,	ptime->tm_min
 			,	ptime->tm_sec
 			);
