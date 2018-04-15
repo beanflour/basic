@@ -47,31 +47,29 @@ namespace BF
 		int				CreateDirectory(std::string _strPath, E_CreateDirectory::Enum const _type = E_CreateDirectory::low);
 		bool			AddBackSlash(std::string &_strPath);
 
-		STRING	GetMyFullPath() const;
-		std::string	GetMyFullPathA() const;
-		std::wstring GetMyFullPathW() const;
-
-		STRING	GetMyDrive() const;
-		std::string	GetMyDriveA() const;
-		std::wstring GetMyDriveW() const;
-
-		STRING	GetMyDirectory() const;
-		std::string	GetMyDirectoryA() const;
-		std::wstring GetMyDirectoryW() const;
-
-		STRING	GetMyFullDirectory() const;
-		std::string	GetMyFullDirectoryA() const;
-		std::wstring GetMyFullDirectoryW() const;
-
-		STRING	GetMyName() const;
-		std::string	GetMyNameA() const;
-		std::wstring GetMyNameW() const;
-
-		STRING	GetMyExt() const;
-		std::string	GetMyExtA() const;
-		std::wstring GetMyExtW() const;
-
 		bool			InitMyInfo();
+		STRING	GetMyFullPath() const;
+		STRING	GetMyDrive() const;
+		STRING	GetMyDirectory() const;
+		STRING	GetMyFullDirectory() const;
+		STRING	GetMyName() const;
+		STRING	GetMyExt() const;
+
+#ifdef _UNICODE
+		std::string	GetMyFullPathA() const;
+		std::string	GetMyDriveA() const;
+		std::string	GetMyDirectoryA() const;
+		std::string	GetMyFullDirectoryA() const;
+		std::string	GetMyNameA() const;
+		std::string	GetMyExtA() const;
+#else
+		std::wstring GetMyFullPathW() const;
+		std::wstring GetMyDriveW() const;
+		std::wstring GetMyDirectoryW() const;
+		std::wstring GetMyFullDirectoryW() const;
+		std::wstring GetMyNameW() const;
+		std::wstring GetMyExtW() const;
+#endif
 		
 		static S_CS m_cs;
 	private:
