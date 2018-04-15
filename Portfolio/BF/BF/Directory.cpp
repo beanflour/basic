@@ -55,7 +55,7 @@ namespace BF
 		CONT_STRING ContReturn;
 		std::string strPath;
 		if(_strPath.empty())
-			strPath = this->GetMyFullDirectoryA().c_str();
+			strPath = this->GetMyFullDirectoryOT().c_str();
 		else
 			strPath = _strPath;
 
@@ -87,7 +87,7 @@ namespace BF
 	{
 		if(std::string::npos == _strPath.rfind(D_STR_DIVISION))	//	\\가 경로에 없을 경우. 즉 만들 디랙토리명만 입력했을 경우
 		{
-			std::string strTemp = this->GetMyFullDirectoryA().c_str();
+			std::string strTemp = this->GetMyFullDirectoryOT().c_str();
 			_strPath = strTemp + _strPath;
 		}
 
@@ -137,6 +137,61 @@ namespace BF
 	STRING	CDirectory::GetMyExt() const
 	{
 		return mstr_MyExt;
+	}
+
+	OSTRING CDirectory::GetMyFullPathOT() const
+	{
+		OSTRING str;
+		if(!mstr_MyFullPath.empty())
+		{
+			str.assign(mstr_MyFullPath.begin(), mstr_MyFullPath.end());
+		}
+		return str;
+	}
+	OSTRING	CDirectory::GetMyDriveOT() const
+	{
+		OSTRING str;
+		if (!mstr_MyDrive.empty())
+		{
+			str.assign(mstr_MyDrive.begin(), mstr_MyDrive.end());
+		}
+		return str;
+	}
+	OSTRING	CDirectory::GetMyDirectoryOT() const
+	{
+		OSTRING str;
+		if (!mstr_MyDirectory.empty())
+		{
+			str.assign(mstr_MyDirectory.begin(), mstr_MyDirectory.end());
+		}
+		return str;
+	}
+	OSTRING	CDirectory::GetMyFullDirectoryOT() const
+	{
+		OSTRING str;
+		if (!mstr_MyFullDirectory.empty())
+		{
+			str.assign(mstr_MyFullDirectory.begin(), mstr_MyFullDirectory.end());
+		}
+		return str;
+	}
+	OSTRING	CDirectory::GetMyNameOT() const
+	{
+		OSTRING str;
+		if (!mstr_MyName.empty())
+		{
+			str.assign(mstr_MyName.begin(), mstr_MyName.end());
+		}
+		return str;
+	}
+	OSTRING	CDirectory::GetMyExtOT() const
+	{
+		OSTRING str;
+		if (!mstr_MyExt.empty())
+		{
+			str.assign(mstr_MyExt.begin(), mstr_MyExt.end());
+		}
+		return str;
 	}
 #ifdef _UNICODE
 	std::string	CDirectory::GetMyFullPathA() const

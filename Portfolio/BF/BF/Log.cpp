@@ -42,7 +42,7 @@ namespace BF
 
 		BF_DIRECTORY.InitMyInfo();
 
-		std::string strTemp = BF_DIRECTORY.GetMyFullDirectoryA().c_str();
+		std::string strTemp = BF_DIRECTORY.GetMyFullDirectoryOT().c_str();
 		strDirectoryPath = strTemp + D_LOG_STRING + D_STR_DIVISION + strDay;
 			
 		if(-1 == _access(D_LOG_STRING, 0))				//	LOG 폴더가 없을 경우 새로 만듬
@@ -50,7 +50,7 @@ namespace BF
 		if(-1 == _access(strDirectoryPath.c_str(), 0))	//	폴더가 없을 경우 새로 만듬 폴더명은 Log_년_월_일
 			BF_DIRECTORY.CreateDirectory(strDirectoryPath.c_str());
 
-		strSec = format("%s_%02d_%02d_%02d", BF_DIRECTORY.GetMyNameA().c_str()
+		strSec = format("%s_%02d_%02d_%02d", BF_DIRECTORY.GetMyNameOT().c_str()
 			,	ptime->tm_hour
 			,	ptime->tm_min
 			,	ptime->tm_sec
