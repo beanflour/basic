@@ -36,6 +36,9 @@
 #endif // _MSC_VER > 1000
 
 #include "common.h"
+#include <vector>
+
+typedef std::vector<std::string>			CONT_STRING;
 
 
 

@@ -83,7 +83,7 @@ namespace BF
 		폴더명만 입력할 경우 해당 작업 디렉토리에 생성된다.
 		E_CreateDirectory::Enum값을 low로 실행하면 경로값이 맞지 않을 때 실패처리하고 deep으로 처리하면 경로값에 해당되는 모든 폴더를 생성한다.
 	*/
-	int		CDirectory::CreateDirectory(std::string _strPath , E_CreateDirectory::Enum const _type /*= E_CreateDirectory::low*/)
+	int		CDirectory::MakeDirectory(std::string _strPath , E_CreateDirectory::Enum const _type /*= E_CreateDirectory::low*/)
 	{
 		if(std::string::npos == _strPath.rfind(D_STR_DIVISION))	//	\\가 경로에 없을 경우. 즉 만들 디랙토리명만 입력했을 경우
 		{
@@ -97,7 +97,7 @@ namespace BF
 			if(E_CreateDirectory::low == _type)
 				return -1;
 
-			this->CreateDirectory(strPrevPath, E_CreateDirectory::deep);
+			this->MakeDirectory(strPrevPath, E_CreateDirectory::deep);
 		}
 
 		return _mkdir(_strPath.c_str());

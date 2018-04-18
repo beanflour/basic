@@ -19,12 +19,6 @@
 #define DEFTYPE_INT(name, value)	int const name = value;
 #define DEFTYPE_STRING(name, value) char const * const name = value;
 
-#include <map>
-#include <vector>
-#include <queue>
-#include <windows.h>
-#include <string>
-
-typedef std::vector<std::string>			CONT_STRING;
-
 DEFTYPE_STRING(D_STR_ADD_COMMA, ", ")
+
+DEFTYPE_INT(D_ERRTYPE_THREAD_INIT, 1)

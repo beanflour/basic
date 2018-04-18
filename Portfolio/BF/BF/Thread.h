@@ -1,9 +1,10 @@
 #pragma once
 
-#include <windows.h>
 #include <vector>
 #include <list>
 #include "common.h"
+//#include <windows.h>
+#include "AutoLock.h"
 
 namespace BF
 {
@@ -13,7 +14,7 @@ namespace BF
 	{
 	public:
 		CThread(void);
-		~CThread(void);
+		virtual ~CThread(void);
 		static unsigned int WINAPI commthread(LPVOID pArguments);
 
 		bool	GetbRunThread() const {return bRunThread;}
@@ -25,7 +26,7 @@ namespace BF
 		
 	protected:
 		virtual void run() = 0;
-		virtual bool Init() = 0;
+		virtual bool Init() = 0;	//	return 0이면 성공, 이외엔 실패.
 		virtual void exit() = 0;
 		HANDLE	hThread;
 		bool	bRunThread;
@@ -35,7 +36,7 @@ namespace BF
 
 	class CThreadMgr
 	{
-		typedef void (*TY_pFunc)(void);
+		//typedef void (*TY_pFunc)(void);
 	public:
 		static CThreadMgr& getInstance()
 		{
@@ -44,8 +45,8 @@ namespace BF
 		}
 		~CThreadMgr();
 
-		CONT_handle		Start(CThread * _pBFThread);		//	쓰레드를 일정 카운트만큼 실행함.
-		CONT_handle		Start(CONT_pThread _ContPtrThread);
+		CONT_handle		Start(CThread * _pBFThread);		// 쓰레드를 실행함.
+		CONT_handle		Start(CONT_pThread _ContPtrThread);	
 		void			End(HANDLE const _hEndThread);
 		void			End(CONT_handle const _ConEndThread);
 		void			AllEnd();
@@ -58,6 +59,7 @@ namespace BF
 		void			DeleteAllPtr();
 
 		static CONT_pThread	m_stcConThreadClass;
+		S_CS				m_cs;
 	};
 #define BFTHREAD_MGR	CThreadMgr::getInstance()
 }

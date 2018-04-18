@@ -1,8 +1,10 @@
 #pragma once
 
-//#include <hash_map>
-#include <list>
 #include <windows.h>
+//#include <hash_map>
+#include <map>
+#include <list>
+#include <vector>
 #include "common.h"
 
 namespace BF

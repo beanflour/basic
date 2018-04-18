@@ -1,6 +1,11 @@
 #pragma once
 
 #include "common.h"
+#include <vector>
+#include <map>
+#include <string>
+
+typedef std::vector<std::string>			CONT_STRING;
 
 DEFTYPE_STRING(D_STR_DIVISION, "\\")
 
@@ -46,7 +51,7 @@ namespace BF
 		std::string		GetSaveDirectory(std::string const _strKey);
 
 		CONT_STRING		GetDirectoryInfo(std::string const _strPath = "" );
-		int				CreateDirectory(std::string _strPath, E_CreateDirectory::Enum const _type = E_CreateDirectory::low);
+		int				MakeDirectory(std::string _strPath, E_CreateDirectory::Enum const _type = E_CreateDirectory::low);
 		bool			AddBackSlash(std::string &_strPath);
 
 		bool			InitMyInfo();

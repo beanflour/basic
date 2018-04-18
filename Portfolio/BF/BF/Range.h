@@ -35,6 +35,9 @@ namespace BF
 	*/
 	template<typename T>
 	CRange<T> range(T const _start, T const _stop) {return CRange<T>(_start, _stop); }
+
+	template<typename T>
+	CRange<T> range(T const _stop){return CRange<T>((T)0, _stop);}
 	
 
 
@@ -43,7 +46,6 @@ namespace BF
 	{
 		T const start;
 		T const stop;
-		//public:
 	private:
 		CRange(T _start, T _stop) : start(_start), stop(_stop){}
 	public:
@@ -57,5 +59,6 @@ namespace BF
 		}
 
 		friend CRange<T> range<T>(T const _start, T const _stop);
+		friend CRange<T> range<T>(T const _stop);
 	};
 }

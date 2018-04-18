@@ -23,8 +23,8 @@ namespace BF
 	CLog::CLog(void)
 		:	m_nfh(0)
 		,	bFileOpen(false)
-		,	eform(ELogForm::Sec)
 	{
+		CAutoLock lock(m_cs);
 #ifdef UNICODE
 		_wsetlocale(LC_ALL, L"korean");
 #endif
@@ -46,9 +46,9 @@ namespace BF
 		strDirectoryPath = strTemp + D_LOG_STRING + D_STR_DIVISION + strDay;
 			
 		if(-1 == _access(D_LOG_STRING, 0))				//	LOG 폴더가 없을 경우 새로 만듬
-			BF_DIRECTORY.CreateDirectory(D_LOG_STRING);
+			BF_DIRECTORY.MakeDirectory(D_LOG_STRING);
 		if(-1 == _access(strDirectoryPath.c_str(), 0))	//	폴더가 없을 경우 새로 만듬 폴더명은 Log_년_월_일
-			BF_DIRECTORY.CreateDirectory(strDirectoryPath.c_str());
+			BF_DIRECTORY.MakeDirectory(strDirectoryPath.c_str());
 
 		strSec = format("%s_%02d_%02d_%02d", BF_DIRECTORY.GetMyNameOT().c_str()
 			,	ptime->tm_hour
@@ -130,30 +130,36 @@ namespace BF
 		USES_CONVERSION;
 		std::wstring wstrTemp(A2W(strData.c_str()));
 		//wstrTemp.assign(strData.begin(), strData.end());
-		_write(m_nfh, wstrTemp.c_str(), sizeof(wchar_t) * wcslen(wstrTemp.c_str()));
-#else
-		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
 
+		{
+			CAutoLock lock(m_cs);
+			_write(m_nfh, wstrTemp.c_str(), sizeof(wchar_t) * wcslen(wstrTemp.c_str()));
+#else
+			_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
 #endif
+		}
 	}
 	void	CLog::AddLog(std::wstring _wstr)
 	{
-		if(false == bFileOpen)
-			return ;
+		if (false == bFileOpen)
+			return;
 
 		time_t tTemp;
 		struct tm *ptime;
 		time(&tTemp);
-		ptime	= localtime(&tTemp);
+		ptime = localtime(&tTemp);
 		std::wstring wstrData = format(L"%02d:%02d:%02d = ", ptime->tm_hour, ptime->tm_min, ptime->tm_sec);
 		wstrData += _wstr + L"\n";
+		{
+			CAutoLock lock(m_cs);
 #ifdef UNICODE
-		_write(m_nfh, wstrData.c_str(), sizeof(wchar_t) * wcslen(wstrData.c_str()));
+			_write(m_nfh, wstrData.c_str(), sizeof(wchar_t) * wcslen(wstrData.c_str()));
 #else
-		USES_CONVERSION;
-		std::string strData(W2A(wstrData.c_str()));
-		//strData.assign(wstrData.begin(), wstrData.end());
-		_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
+			USES_CONVERSION;
+			std::string strData(W2A(wstrData.c_str()));
+			//strData.assign(wstrData.begin(), wstrData.end());
+			_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
 #endif
+		}
 	}
 }

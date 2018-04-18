@@ -3,6 +3,7 @@
 #include <vector>
 #include <Windows.h>
 #include "PoolBase.h"
+#include "AutoLock.h"
 
 namespace BF
 {
@@ -43,13 +44,30 @@ namespace BF
 		void	AddWaitObject(CPoolBase* pObject);
 		void	AddWaitObjectArray(CPoolBase *_pObjectArray[], UINT const &_unSize);
 
-		CPoolBase* GetNewObject(pSetRule pRuleFunc = nullptr);
-		// 사용큐에서 해당 index에 해당하는 데이터를 가져오기 위한 함수
+		/*	
+			대기큐에서 사용큐로 이동시키는 함수.
+			매개변수를 넣지 않으면 대기큐의 0번에서부터 순서대로 이동됨.
+			매개변수1은 초기화 과련 데이터를 주고받을 LPVOID로 형변환해서 초기화에 활용한다. 안넣어두 됨.
+			매개변수2는 함수 포인터로 bool name(CPoolBase*)형의 함수를 사용할수 있으며
+			람다를 사용할때엔 [](CPoolBase *_pPoolBase)->bool{}형식으로 사용 가능하다.
+			넣어준 함수 포인터는 규칙으로. return true에 해당하는 데이터를 사용큐로 이동시킨다.
+			이것을 사용하여 원하는 데이터를 사용큐로 이동 가능하다.
+		*/
+		CPoolBase* GetNewObject(LPVOID _p = nullptr, pSetRule pRuleFunc = nullptr);
+		/*	
+			GetNewObject와 마찬가지로 규칙에 해당하는 오브젝트를 사용큐에서 대기큐로 옮긴다.
+			디폴트 매개변수가 없음.
+			규칙에 해당하는 모든 사용큐 데이터를 대기큐로 옮긴다.( 하나만 옮기는게 아님)
+		*/
+		bool	DelObjects(pSetRule pRulFunc);
+		//	사용큐에서 해당 index에 해당하는 데이터를 가져오기 위한 함수
 		CPoolBase* GetObject(UINT const &_Index);
+		CPoolBase* operator [](UINT i) ;
 		//	오브젝트 삭제(사용컨테이너에서 총 컨테이너로 옮김)
 		void	DelObject(CPoolBase const * const _obj);
 		//	이게 사용될 일은 없을것 같지만 index로 접근해서 삭제.
 		void	DelObject(UINT const &_unIndex);
+
 
 		//	전체 삭제. 아예 대기큐 데이터까지 삭제한다.
 		void	AllDelete();
@@ -70,6 +88,8 @@ namespace BF
 		CONT_BOOL				mCont_WaitQueue;
 								//	사용큐 매칭큐.	매칭되는 사용큐의 데이터의 대기 컨테이너 위치를 알려줌.
 		CONT_BOOL				mCont_UseQueue;
+
+		BF::S_CS				m_cs;
 	};
 
 

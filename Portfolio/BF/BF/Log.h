@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.h"
+#include <string>
 
 DEFTYPE_STRING(D_LOG_EX, ".Log")
 DEFTYPE_STRING(D_LOG_STRING, "LOG")
@@ -9,15 +10,6 @@ DEFTYPE_INT(D_MAX_LEN, 1024)
 namespace BF
 {
 	struct S_CS;
-	namespace ELogForm
-	{
-		enum Enum
-		{
-			Day,
-			Min,
-			Sec,
-		};
-	}
 	/*
 		Log의 저장 방식은
 		Log_년_월_일 폴더에 시간_분_초.Log 파일로 저장된다.
@@ -44,7 +36,6 @@ namespace BF
 		std::string	m_strPath;
 		int			m_nfh;
 		bool		bFileOpen;
-		ELogForm::Enum eform;
 	};
 }
 

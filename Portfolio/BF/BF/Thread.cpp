@@ -2,6 +2,7 @@
 #include "Thread.h"
 #include <process.h>
 #include "Range.h"
+#include "Log.h"
 
 namespace BF
 {
@@ -11,7 +12,6 @@ namespace BF
 		:	bRunThread(true)//,
 			//a(10)
 	{
-		printf("");
 	}
 
 
@@ -23,7 +23,11 @@ namespace BF
 	{
 		CThread* pThreadClass = reinterpret_cast<CThread*>(pArguments);
 
-		pThreadClass->Init();
+		if (pThreadClass->Init())
+		{
+			BF_LOG.AddLog("CThread::commthread / thread init 실패. 해당 스레드는 실행되지 않는다.");
+			return D_ERRTYPE_THREAD_INIT;
+		}
 
 		while(pThreadClass->bRunThread)
 			pThreadClass->run();
@@ -50,26 +54,42 @@ namespace BF
 		CONT_handle ConHandle;
 
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &CThread::commthread, reinterpret_cast<LPVOID>(_pBFThread), 0, NULL);
-		if(NULL == hThread)
+		if (NULL == hThread)
+		{
+			BF_LOG.AddLog("CThreadMgr::Start(CThread ..) beginthreadex 실패.");
 			return ConHandle;
+		}
 		_pBFThread->SetHandle(hThread);
 		ConHandle.push_back(hThread);
-		m_stcConThreadClass.push_back(_pBFThread);
+
+		{
+			CAutoLock alock(m_cs);
+			m_stcConThreadClass.push_back(_pBFThread);
+		}
 
 		return ConHandle;
 	}
 
 	CONT_handle		CThreadMgr::Start(CONT_pThread _ContPtrThread)
 	{
+		UINT nIndex = 0;
 		CONT_handle ConHandle;
 		for(auto _ptr : _ContPtrThread)
 		{
 			HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &CThread::commthread, reinterpret_cast<LPVOID>(_ptr), 0, NULL);
-			if(NULL == hThread)
+			if (NULL == hThread)
+			{
+				BF_LOG.AddLog("CThreadMgr::Start(CONT_pThread ..)의 beginthreadex 실패. Index %d", nIndex);
 				continue;
+			}
 			_ptr->SetHandle(hThread);
 			ConHandle.push_back(hThread);
-			m_stcConThreadClass.push_back(_ptr);
+
+			{
+				CAutoLock alock(m_cs);
+				m_stcConThreadClass.push_back(_ptr);
+			}
+			++nIndex;
 		}
 
 		return ConHandle;
@@ -80,9 +100,11 @@ namespace BF
 		auto ptr = this->GetClassPtr(_hEndThread);
 		if(nullptr != ptr)
 		{
-			ptr->SetbRunThread(FALSE);
+			ptr->EndThread();
 			::WaitForSingleObject(ptr->GetHandle(), INFINITE);
 		}
+
+		this->DeletePtr(ptr);
 	}
 
 	void	CThreadMgr::End(CONT_handle const _ConEndThread)
@@ -94,7 +116,6 @@ namespace BF
 				continue;
 
 			pThread->EndThread();
-
 		}
 
 		::WaitForMultipleObjects(_ConEndThread.size(), _ConEndThread.data(), TRUE, INFINITE);
@@ -105,10 +126,13 @@ namespace BF
 	void	CThreadMgr::AllEnd()
 	{
 		CONT_handle conhTemp;
-		for(CThread* _pThread : m_stcConThreadClass)
 		{
-			_pThread->EndThread();
-			conhTemp.push_back(_pThread->GetHandle());
+			CAutoLock lock(m_cs);
+			for (CThread* _pThread : m_stcConThreadClass)
+			{
+				_pThread->EndThread();
+				conhTemp.push_back(_pThread->GetHandle());
+			}
 		}
 		::WaitForMultipleObjects(conhTemp.size(), conhTemp.data(), TRUE, INFINITE);
 		this->DeleteAllPtr();
@@ -116,6 +140,7 @@ namespace BF
 
 	CThread* const CThreadMgr::GetClassPtr(HANDLE const _handle)
 	{
+		CAutoLock lock(m_cs);
 		for(auto ptr : m_stcConThreadClass)
 		{
 			if(_handle == ptr->GetHandle())
@@ -131,7 +156,10 @@ namespace BF
 			SAFE_DELETE(ptr);
 		}
 
-		m_stcConThreadClass.clear();
+		{
+			CAutoLock lock(m_cs);
+			m_stcConThreadClass.clear();
+		}
 	}
 
 	
@@ -140,7 +168,10 @@ namespace BF
 		auto pTemp = GetClassPtr(_handle);
 		if(pTemp)
 		{
-			m_stcConThreadClass.remove(pTemp);
+			{
+				CAutoLock lock(m_cs);
+				m_stcConThreadClass.remove(pTemp);
+			}
 			SAFE_DELETE(pTemp);
 		}
 	}
