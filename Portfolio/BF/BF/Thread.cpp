@@ -9,8 +9,7 @@ namespace BF
 	CONT_pThread	CThreadMgr::m_stcConThreadClass;
 
 	CThread::CThread(void)
-		:	bRunThread(true)//,
-			//a(10)
+		:	bRunThread(true)
 	{
 	}
 
@@ -28,9 +27,8 @@ namespace BF
 			BF_LOG.AddLog("CThread::commthread / thread init 실패. 해당 스레드는 실행되지 않는다.");
 			return D_ERRTYPE_THREAD_INIT;
 		}
-
-		while(pThreadClass->bRunThread)
-			pThreadClass->run();
+		
+		while(pThreadClass->bRunThread && pThreadClass->run());
 
 		pThreadClass->exit();
 		return 0;

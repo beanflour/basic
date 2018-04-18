@@ -25,7 +25,7 @@ namespace BF
 		void	SetHandle(HANDLE const &_handle) {hThread = _handle;}
 		
 	protected:
-		virtual void run() = 0;
+		virtual bool run() = 0;
 		virtual bool Init() = 0;	//	return 0이면 성공, 이외엔 실패.
 		virtual void exit() = 0;
 		HANDLE	hThread;
