@@ -22,7 +22,7 @@ namespace BF
 	{
 		CThread* pThreadClass = reinterpret_cast<CThread*>(pArguments);
 
-		if (pThreadClass->Init())
+		if (false == pThreadClass->Init())
 		{
 			BF_LOG.AddLog("CThread::commthread / thread init 실패. 해당 스레드는 실행되지 않는다.");
 			return D_ERRTYPE_THREAD_INIT;
@@ -47,25 +47,25 @@ namespace BF
 		this->AllEnd();
 	}
 
-	CONT_handle		CThreadMgr::Start(CThread * _pBFThread)
+	HANDLE		CThreadMgr::Start(CThread * _pBFThread)
 	{
-		CONT_handle ConHandle;
+		//CONT_handle ConHandle;
 
 		HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, &CThread::commthread, reinterpret_cast<LPVOID>(_pBFThread), 0, NULL);
 		if (NULL == hThread)
 		{
 			BF_LOG.AddLog("CThreadMgr::Start(CThread ..) beginthreadex 실패.");
-			return ConHandle;
+			return NULL;
 		}
 		_pBFThread->SetHandle(hThread);
-		ConHandle.push_back(hThread);
+		//ConHandle.push_back(hThread);
 
 		{
 			CAutoLock alock(m_cs);
 			m_stcConThreadClass.push_back(_pBFThread);
 		}
 
-		return ConHandle;
+		return hThread;
 	}
 
 	CONT_handle		CThreadMgr::Start(CONT_pThread _ContPtrThread)
