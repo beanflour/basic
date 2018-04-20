@@ -27,6 +27,7 @@ namespace BF
 		//void	AddLog(WCHAR *_fmt, ...);
 		void	AddLog(std::string _str);
 		void	AddLog(std::wstring _wstr);
+		void	AddSockError(char *str = nullptr);
 		static S_CS m_cs;
 	private:
 

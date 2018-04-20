@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <WinSock2.h>
 #include "Log.h"
 #include "AutoLock.h"
 #include "Directory.h"
@@ -161,5 +162,21 @@ namespace BF
 			_write(m_nfh, strData.c_str(), strlen(strData.c_str()));
 #endif
 		}
+	}
+
+	void	CLog::AddSockError(char *_str /* = nullptr*/)
+	{
+		LPWSTR lpOSMsg = nullptr;
+		DWORD nError = WSAGetLastError();
+		FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr,
+			nError,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR)&lpOSMsg, 0, nullptr);
+
+		this->AddLog(lpOSMsg);
+		this->AddLog("WSAGetLastError : %d", nError);
+		if(_str)
+			this->AddLog(_str);
 	}
 }
