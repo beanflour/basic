@@ -29,6 +29,12 @@ namespace BF
 		void	AddLog(std::wstring _wstr);
 		void	AddSockError(char *str = nullptr);
 		static S_CS m_cs;
+
+		/*
+			try catch(char *)로 SIGSEGV에러(메모리 접근에러)를 처리하기 위한 함수.
+			getinstance()에 들어가 있으므로 BF_LOG가 한번이라도 호출된뒤에 일어난 SIGSEGV에러를 catch(char*)에서 받을 수 있다.
+		*/
+		void	SetTrySIGSEGV();
 	private:
 
 	private:

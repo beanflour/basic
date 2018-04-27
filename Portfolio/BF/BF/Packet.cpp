@@ -14,6 +14,7 @@ namespace BF
 		,	mui_RealAddSize(0)
 		,	mb_Lock(false)
 	{
+		BF_LOG;	//	메모리 에러를 잡기위해 SetTrySIGSEGV를 한번 호출해주기 위한 작업.
 	}
 
 	CPacket::CPacket(int const &_iPacketType)
@@ -24,6 +25,7 @@ namespace BF
 		,	mui_RealAddSize(0)
 		,	mb_Lock(false)
 	{
+		BF_LOG;
 	}
 
 	CPacket::CPacket(CPacket const &_Packet)
@@ -35,6 +37,7 @@ namespace BF
 		,	mui_RealAddSize(_Packet.mui_RealAddSize)
 		,	mb_Lock(_Packet.mb_Lock)
 	{
+		BF_LOG;
 	}
 
 	CPacket::~CPacket(void)
@@ -445,9 +448,11 @@ namespace BF
 
 		ULONG64 const nULONG64Size	= sizeof(ULONG64);
 		ULONG64 nDataSize			= GetRTRemnantSize();	//	전송해야할 남은 크기를 가져옴.
-		int nRTNumber				= 0;
-		int nTotalNumber			= 0;
-		int const nLocalSize		= static_cast<int>(mui_RTDataPos);
+		ULONG32 nRTNumber			= 0;
+		ULONG32 nTotalNumber		= 0;
+		size_t const nLocalSize		= static_cast<size_t>(mui_RTDataPos);
+		if(nLocalSize > ReturnData.size())	//	ReturnData에 index로 쓰이기때문에 범위검사.
+			return nullptr;
 		/*	
 			m_uiRTRealPos는 현재까지 전송한 데이터 Size이므로 나눈 몫이 번호가 된다.
 			m_ContData.Size() / D_SEND_LIMIT_SIZE가 0일경우(나눌 필요가 없을 경우) 0
@@ -477,11 +482,20 @@ namespace BF
 			mb_Lock = true;	//	직렬화가 시작되었을때 락을 건다.
 			ReturnData.resize(nLocalSize + GetDivideAllRTSize());	//	전체 사이즈를 정비한다.
 		}
-		::memcpy(&ReturnData[nLocalSize], &mui_PacketType, nULONG64Size);									//	헤드1. PacketType
-		::memcpy(&ReturnData[nLocalSize + nULONG64Size], &unRTNumber, nULONG64Size);						//	헤드2. PacketNumber. 0번일경우 단일패킷. 1 이상일경우 분할된 패킷이다.
-		::memcpy(&ReturnData[nLocalSize + static_cast<LONG>(nULONG64Size * 2)], &nDataSize, nULONG64Size);	//	헤드3. DataSize.	전송할 데이터 사이즈.
-		::memcpy(&ReturnData[nLocalSize + static_cast<LONG>(nULONG64Size * 3)], &mCont_Data[static_cast<size_t>(mui_RTRealPos)], static_cast<size_t>(nDataSize)); //	실제 데이터
 
+		try
+		{
+			::memcpy(&ReturnData[nLocalSize], &mui_PacketType, nULONG64Size);									//	헤드1. PacketType
+			::memcpy(&ReturnData[nLocalSize + nULONG64Size], &unRTNumber, nULONG64Size);						//	헤드2. PacketNumber. 0번일경우 단일패킷. 1 이상일경우 분할된 패킷이다.
+			::memcpy(&ReturnData[nLocalSize + static_cast<size_t>(nULONG64Size * 2)], &nDataSize, nULONG64Size);	//	헤드3. DataSize.	전송할 데이터 사이즈.
+			::memcpy(&ReturnData[nLocalSize + static_cast<size_t>(nULONG64Size * 3)], &mCont_Data[static_cast<size_t>(mui_RTRealPos)], static_cast<size_t>(nDataSize)); //	실제 데이터
+		}
+		catch(char*)
+		{
+			ReturnData.clear();
+			BF_LOG.AddLog("BF::CPacket::GetData. memcpyError. Line.489");
+			return nullptr;
+		}
 		mui_RTDataPos += static_cast<LONG32>(nDataSize + (nULONG64Size * 3));	//	전송한 위치를 변경.
 		mui_RTRealPos += nDataSize;		// 전송한 실제 데이터.
 		
@@ -504,10 +518,19 @@ namespace BF
 
 		ReturnData.clear();
 		ReturnData.resize(static_cast<size_t>((nULONG64Size * 3) + nDataSize));
-		::memcpy(&ReturnData[0], &mui_PacketType, nULONG64Size);
-		::memcpy(&ReturnData[nULONG64Size], &unRTNumber, nULONG64Size);
-		::memcpy(&ReturnData[static_cast<LONG>(nULONG64Size * 2)], &nDataSize, nULONG64Size);
-		::memcpy(&ReturnData[static_cast<LONG>(nULONG64Size * 3)], &mCont_Data[0], static_cast<size_t>(nDataSize));
+		try
+		{
+			::memcpy(&ReturnData[0], &mui_PacketType, nULONG64Size);
+			::memcpy(&ReturnData[nULONG64Size], &unRTNumber, nULONG64Size);
+			::memcpy(&ReturnData[static_cast<LONG>(nULONG64Size * 2)], &nDataSize, nULONG64Size);
+			::memcpy(&ReturnData[static_cast<LONG>(nULONG64Size * 3)], &mCont_Data[0], static_cast<size_t>(nDataSize));
+		}
+		catch(char*)
+		{
+			ReturnData.clear();
+			BF_LOG.AddLog("BF::CPacket::GetAllData. memcpyError. line.524");
+			return nullptr;
+		}
 		return &ReturnData[0];
 	}
 
@@ -556,50 +579,67 @@ namespace BF
 			return E_PACKET_ERROR::Error;
 		}
 
-		LONG const nULONG64Size		= sizeof(ULONG64);
-		ULONG64 const uiPacketType	= *reinterpret_cast<ULONG64 const *>(&_strData[0]);					//	패킷타입
-		ULONG64 uiNumber			= *reinterpret_cast<ULONG64 const *>(&_strData[nULONG64Size]);		//	데이타 넘버. 0일경우 단일패킷. 아닐경우 분할데이터.
-		ULONG64 const uiDataSize	= *reinterpret_cast<ULONG64 const *>(&_strData[nULONG64Size * 2]);	//	실제 데이터 Size.
-		int nNumber = 0, nTotalNumber = 0;
+		//	에러가 났을 경우 원래대로 돌리기 위한 자료저장.
+		bool const b_Lock				= mb_Lock;
+		ULONG64 const unPrevPacketType	= mui_PacketType;
+		ULONG64 const unRealAddSize		= mui_RealAddSize;
 
-		if (0 == uiDataSize)	//	받은 DataSize가 0일경우 끝.
-			return E_PACKET_ERROR::NonSize;
-
-		if (false == mb_Lock)	//	락이 안걸려 있다는건 처음으로 AddData가 호출되었다는 의미.
+		try
 		{
-			this->Clear();		//	현재 Packet을 비우고.
-			mb_Lock = true;		//	락을 건다.
-		}
-		if (uiNumber)
-		{
-			//	총 nTotalNumber개의 분할패킷중 nNumber번째 패킷이라는 뜻.
-			nTotalNumber ^= uiNumber;				//	분할된 전체 갯수
-			uiNumber >>= sizeof(ULONG64) / 2 * 8;
-			nNumber ^= uiNumber;					//	현재 패킷의 번호.
+			LONG const nULONG64Size = sizeof(ULONG64);
+			ULONG64 const uiPacketType	= *reinterpret_cast<ULONG64 const *>(&_strData[0]);					//	패킷타입
+			ULONG64 uiNumber			= *reinterpret_cast<ULONG64 const *>(&_strData[nULONG64Size]);		//	데이타 넘버. 0일경우 단일패킷. 아닐경우 분할데이터.
+			ULONG64 const uiDataSize	= *reinterpret_cast<ULONG64 const *>(&_strData[nULONG64Size * 2]);	//	실제 데이터 Size.
+			ULONG32	nNumber = 0;
+			ULONG32 nTotalNumber = 0;
 
-			if (mCont_Data.size() < static_cast<size_t>(D_SEND_LIMIT_SIZE * nTotalNumber))
-				mCont_Data.resize(
-					nTotalNumber * D_SEND_LIMIT_SIZE	//	이전에 들어간 Size.
-				);
-		}
-		else
-		{
-			nNumber = 1;	//	밑의 memcpy에서 &m_ContData[0]으로 만들기 위한 보정값.
-			mCont_Data.resize(static_cast<ULONG32>(uiDataSize));
-		}
+			if (0 == uiDataSize)	//	받은 DataSize가 0일경우 끝.
+				return E_PACKET_ERROR::NonSize;
 
-		::memcpy(&mCont_Data[(nNumber - 1) * D_SEND_LIMIT_SIZE]	//	(번호 -1 * D_SEND_LIMIT_SIZE) 위치에서 
+			if (false == mb_Lock)	//	락이 안걸려 있다는건 처음으로 AddData가 호출되었다는 의미.
+			{
+				this->Clear();		//	현재 Packet을 비우고.
+				mb_Lock = true;		//	락을 건다.
+			}
+			if (uiNumber)
+			{
+				//	총 nTotalNumber개의 분할패킷중 nNumber번째 패킷이라는 뜻.
+				nTotalNumber ^= uiNumber;				//	분할된 전체 갯수
+				uiNumber >>= sizeof(ULONG64) / 2 * 8;
+				nNumber ^= uiNumber;					//	현재 패킷의 번호.
+
+				if (mCont_Data.size() < static_cast<size_t>(D_SEND_LIMIT_SIZE * nTotalNumber))
+					mCont_Data.resize(
+						nTotalNumber * D_SEND_LIMIT_SIZE	//	이전에 들어간 Size.
+					);
+			}
+			else
+			{
+				nNumber = 1;	//	밑의 memcpy에서 &m_ContData[0]으로 만들기 위한 보정값.
+				mCont_Data.resize(static_cast<ULONG32>(uiDataSize));
+			}
+
+			::memcpy(&mCont_Data[(nNumber - 1) * D_SEND_LIMIT_SIZE]	//	(번호 -1 * D_SEND_LIMIT_SIZE) 위치에서 
 				, &_strData[nULONG64Size * 3]						//	헤더사이즈 뒤부터.
 				, static_cast<size_t>(uiDataSize));					//	데이터 사이즈만큼 복사.
 
-		mui_PacketType = uiPacketType;	//	받아놓은 패킷타입 복사.
+			mui_PacketType = uiPacketType;	//	받아놓은 패킷타입 복사.
 
-		mui_RealAddSize += uiDataSize;	//	실제 Add된 데이터 크기.
-		int const nApply = ((mui_RealAddSize % D_SEND_LIMIT_SIZE) == 0) ? (static_cast<int>(mui_RealAddSize) / D_SEND_LIMIT_SIZE) : ((static_cast<int>(mui_RealAddSize) / D_SEND_LIMIT_SIZE) + 1);
-		if(uiNumber == 0 || nApply == nTotalNumber)		//	단일패킷이거나 작업한 패킷이 전체만큼일 경우
+			mui_RealAddSize += uiDataSize;	//	실제 Add된 데이터 크기.
+			int const nApply = ((mui_RealAddSize % D_SEND_LIMIT_SIZE) == 0) ? (static_cast<int>(mui_RealAddSize) / D_SEND_LIMIT_SIZE) : ((static_cast<int>(mui_RealAddSize) / D_SEND_LIMIT_SIZE) + 1);
+			if (uiNumber == 0 || nApply == nTotalNumber)		//	단일패킷이거나 작업한 패킷이 전체만큼일 경우
+			{
+				mb_Lock = false;				//	패킷 구성이 완료되었으므로 락을 푼다.
+				return E_PACKET_ERROR::Complete;	//	완성된 패킷임을 알림.
+			}
+		}
+		catch(char *)
 		{
-			mb_Lock		= false;				//	패킷 구성이 완료되었으므로 락을 푼다.
-			return E_PACKET_ERROR::Complete;	//	완성된 패킷임을 알림.
+			//	에러가 났우 롤백. Access 에러가 날 곳이 memcpy밖에 없다. memcpy에서 에러가 났을경우 실제 데이터가 들어오진 않았을 것이기에 원래로 돌리기만 함.
+			mb_Lock = b_Lock;
+			mui_PacketType	= unPrevPacketType;
+			mui_RealAddSize = unRealAddSize;
+			return E_PACKET_ERROR::Error;
 		}
 
 		return E_PACKET_ERROR::Remnant;		//	아직 완성되지 않은 패킷임을 알림.

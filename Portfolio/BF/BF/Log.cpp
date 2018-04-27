@@ -13,6 +13,7 @@
 #include <locale.h>
 #include <AtlConv.h>
 #include <stdio.h>
+#include <signal.h>
 
 
 #pragma warning(disable:4996)
@@ -87,6 +88,8 @@ namespace BF
 
 		if(-1 != m_nfh)
 			bFileOpen = true;
+
+		SetTrySIGSEGV();
 	}
 
 
@@ -178,5 +181,13 @@ namespace BF
 		this->AddLog("WSAGetLastError : %d", nError);
 		if(_str)
 			this->AddLog(_str);
+	}
+	
+	void	CLog::SetTrySIGSEGV()
+	{
+		signal(SIGSEGV, [](int nSignal) {
+			BF_LOG.AddLog("Signal Error : %d", nSignal);
+			throw "Signal Error!";
+		});
 	}
 }
