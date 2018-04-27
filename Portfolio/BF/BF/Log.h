@@ -24,7 +24,7 @@ namespace BF
 		static CLog& getinstance();
 
 		void	AddLog(char *_fmt, ...);
-		//void	AddLog(WCHAR *_fmt, ...);
+		void	AddLog(wchar_t *_fmt, ...);
 		void	AddLog(std::string _str);
 		void	AddLog(std::wstring _wstr);
 		void	AddSockError(char *str = nullptr);

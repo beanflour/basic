@@ -118,6 +118,18 @@ namespace BF
 		AddLog(strData);
 	}
 
+	void	CLog::AddLog(wchar_t *_fmt, ...)
+	{
+		wchar_t str[D_MAX_LEN] = { '\0' };
+		va_list ap;
+		va_start(ap, _fmt);
+		//vsprintf(str, _fmt, ap);
+		vswprintf(str, D_MAX_LEN, _fmt, ap);
+		va_end(ap);
+		std::wstring strData(str);
+		AddLog(strData);
+	}
+
 	void	CLog::AddLog(std::string _str)
 	{
 		if(false == bFileOpen)
