@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "WELL19937a.h"
+#include <time.h>
 
 #define W 32
-#define R 624
 #define P 31
 #define MASKU (0xffffffffU>>(W-P))
 #define MASKL (~MASKU)
@@ -40,141 +40,157 @@
 
 #define FACT 2.32830643653869628906e-10
 
-static int state_i = 0;
-static unsigned int STATE[R];
-static unsigned int z0, z1, z2;
-static double case_1 (void);
-static double case_2 (void);
-static double case_3 (void);
-static double case_4 (void);
-static double case_5 (void);
-static double case_6 (void);
-double (*WELLRNG19937a) (void);
-
 static unsigned int y;
 
-void InitWELLRNG19937a (unsigned int *init){
-	int j;
-	state_i = 0;
-	WELLRNG19937a = case_1;
-	for (j = 0; j < R; j++)
-		STATE[j] = init[j];
-}
-
-double case_1 (void){
-	// state_i == 0
-	z0 = (VRm1Under & MASKL) | (VRm2Under & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1);
-	z2 = MAT3POS (9, VM2) ^ MAT0POS (1, VM3);
-	newV1      = z1 ^ z2;
-	newV0Under = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i = R - 1;
-	WELLRNG19937a = case_3;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-static double case_2 (void){
-	// state_i == 1
-	z0 = (VRm1 & MASKL) | (VRm2Under & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1);
-	z2 = MAT3POS (9, VM2) ^ MAT0POS (1, VM3);
-	newV1 = z1 ^ z2;
-	newV0 = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i = 0;
-	WELLRNG19937a = case_1;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-static double case_3 (void){
-	// state_i+M1 >= R
-	z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1Over);
-	z2 = MAT3POS (9, VM2Over) ^ MAT0POS (1, VM3Over);
-	newV1 = z1 ^ z2;
-	newV0 = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i--;
-	if (state_i + M1 < R)
-		WELLRNG19937a = case_5;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-static double case_4 (void){
-	// state_i+M3 >= R
-	z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1);
-	z2 = MAT3POS (9, VM2) ^ MAT0POS (1, VM3Over);
-	newV1 = z1 ^ z2;
-	newV0 = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i--;
-	if (state_i + M3 < R)
-		WELLRNG19937a = case_6;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-static double case_5 (void){
-	// state_i+M2 >= R
-	z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1);
-	z2 = MAT3POS (9, VM2Over) ^ MAT0POS (1, VM3Over);
-	newV1 = z1 ^ z2;
-	newV0 = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i--;
-	if (state_i + M2 < R)
-		WELLRNG19937a = case_4;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-static double case_6 (void){
-	// 2 <= state_i <= (R - M3 - 1)
-	z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
-	z1 = MAT0NEG (-25, V0) ^ MAT0POS (27, VM1);
-	z2 = MAT3POS (9, VM2) ^ MAT0POS (1, VM3);
-	newV1 = z1 ^ z2;
-	newV0 = MAT1 (z0) ^ MAT0NEG (-9, z1) ^ MAT0NEG (-21, z2) ^ MAT0POS (21, newV1);
-	state_i--;
-	if (state_i == 1)
-		WELLRNG19937a = case_2;
-#ifdef TEMPERING
-	y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
-	y =              y ^ ((             y << 15) & TEMPERC);
-	return ((double) y * FACT);
-#else
-	return ((double) STATE[state_i] * FACT);
-#endif
-}
-
-
-int IntWELLa(int const _max, int const _min /*= 0*/)
+namespace BF
 {
-	return (int)((double)WELLRNG19937a() * (_max-_min+1)) + _min;
+	//int WELLRand::state_i = 0;
+	WELLRand *WELLRand::mp_this = nullptr;
+
+	double WELLRand::CallFunc()
+	{
+		return (this->*mf_Well)();
+	}
+
+	WELLRand::WELLRand()
+		:	state_i(0)
+	{
+		unsigned int nArr[R] = { 0 };
+		for(unsigned int &nVal : nArr)
+		{
+			static unsigned int s = static_cast<unsigned int>(time(NULL));
+			nVal = s;
+			s += s + 100;
+		}
+		InitWELLRNG19937a(nArr);
+	}
+
+	WELLRand::~WELLRand()
+	{
+		if(mp_this)
+			delete mp_this;
+	}
+	int WELLRand::IntRand(int const &_max, int const & _min /*= 0*/)
+	{
+		return (int)((double)CallFunc() * (_max - _min + 1)) + _min;
+	}
+	void WELLRand::InitWELLRNG19937a(unsigned int *init)
+	{
+		state_i = 0;
+		mf_Well = &WELLRand::case_1;
+		for (int j = 0; j < R; j++)
+			STATE[j] = init[j];
+	}
+	double WELLRand::case_1(void)
+	{
+		// state_i == 0
+		z0 = (VRm1Under & MASKL) | (VRm2Under & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1);
+		z2 = MAT3POS(9, VM2) ^ MAT0POS(1, VM3);
+		newV1 = z1 ^ z2;
+		newV0Under = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i = R - 1;
+		mf_Well = &WELLRand::case_3;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
+	double WELLRand::case_2(void)
+	{
+		// state_i == 1
+		z0 = (VRm1 & MASKL) | (VRm2Under & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1);
+		z2 = MAT3POS(9, VM2) ^ MAT0POS(1, VM3);
+		newV1 = z1 ^ z2;
+		newV0 = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i = 0;
+		mf_Well = &WELLRand::case_1;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
+	double WELLRand::case_3(void)
+	{
+		// state_i+M1 >= R
+		z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1Over);
+		z2 = MAT3POS(9, VM2Over) ^ MAT0POS(1, VM3Over);
+		newV1 = z1 ^ z2;
+		newV0 = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i--;
+		if (state_i + M1 < R)
+			mf_Well = &WELLRand::case_5;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
+	double WELLRand::case_4(void)
+	{
+		// state_i+M3 >= R
+		z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1);
+		z2 = MAT3POS(9, VM2) ^ MAT0POS(1, VM3Over);
+		newV1 = z1 ^ z2;
+		newV0 = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i--;
+		if (state_i + M3 < R)
+			mf_Well = &WELLRand::case_6;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
+	double WELLRand::case_5(void)
+	{
+		// state_i+M2 >= R
+		z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1);
+		z2 = MAT3POS(9, VM2Over) ^ MAT0POS(1, VM3Over);
+		newV1 = z1 ^ z2;
+		newV0 = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i--;
+		if (state_i + M2 < R)
+			mf_Well = &WELLRand::case_4;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
+	double WELLRand::case_6(void)
+	{
+		// 2 <= state_i <= (R - M3 - 1)
+		z0 = (VRm1 & MASKL) | (VRm2 & MASKU);
+		z1 = MAT0NEG(-25, V0) ^ MAT0POS(27, VM1);
+		z2 = MAT3POS(9, VM2) ^ MAT0POS(1, VM3);
+		newV1 = z1 ^ z2;
+		newV0 = MAT1(z0) ^ MAT0NEG(-9, z1) ^ MAT0NEG(-21, z2) ^ MAT0POS(21, newV1);
+		state_i--;
+		if (state_i == 1)
+			mf_Well = &WELLRand::case_2;
+#ifdef TEMPERING
+		y = STATE[state_i] ^ ((STATE[state_i] << 7) & TEMPERB);
+		y = y ^ ((y << 15) & TEMPERC);
+		return ((double)y * FACT);
+#else
+		return ((double)STATE[state_i] * FACT);
+#endif
+	}
 }
