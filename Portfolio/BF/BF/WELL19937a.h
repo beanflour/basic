@@ -28,6 +28,7 @@ namespace BF
 		}
 
 		int IntRand(int const &_max, int const &_min = 0);
+		double DoubleRand(double const &_max, double const &_min = 0.0);
 	private:
 		WELLRand();
 		

@@ -82,6 +82,7 @@
     <ClInclude Include="AdoDB.h" />
     <ClInclude Include="Directory.h" />
     <ClInclude Include="formatstdstring.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PoolBase.h" />
@@ -97,6 +98,7 @@
   <ItemGroup>
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="formatstdstring.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="AdoDB.cpp" />
     <ClCompile Include="Packet.cpp" />

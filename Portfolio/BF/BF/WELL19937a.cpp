@@ -74,6 +74,10 @@ namespace BF
 	{
 		return (int)((double)CallFunc() * (_max - _min + 1)) + _min;
 	}
+	double WELLRand::DoubleRand(double const & _max, double const & _min)
+	{
+		return ((double)CallFunc() * (_max - _min + 1)) + _min;
+	}
 	void WELLRand::InitWELLRNG19937a(unsigned int *init)
 	{
 		state_i = 0;
