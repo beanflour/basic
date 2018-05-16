@@ -43,7 +43,6 @@ namespace BF
 	{
 		typedef std::map<std::string, std::string>	MAP_STRING;
 	public:
-		~CDirectory(void);
 
 		static CDirectory&		getinstance();
 
@@ -94,6 +93,11 @@ namespace BF
 		static S_CS m_cs;
 	private:
 		CDirectory(void);
+		CDirectory(CDirectory const &_Copy);	//	복사 생성자로 사용을 막기위해 정의하지 않았다.
+		~CDirectory(void);
+
+		static void Create();
+		static void KillMemory();
 
 		std::string		mstr_LocalDirectory;
 		std::string		mstr_TempDirectory;
@@ -108,6 +112,9 @@ namespace BF
 
 
 		MAP_STRING		mCont_Directory;
+		
+		static bool mb_Destory;
+		static CDirectory *mp_Ins;
 	};
 }
 

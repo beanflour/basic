@@ -18,9 +18,6 @@ namespace BF
 	class CLog
 	{
 	public:
-		
-		~CLog(void);
-
 		static CLog& getinstance();
 
 		void	AddLog(char *_fmt, ...);
@@ -36,13 +33,19 @@ namespace BF
 		*/
 		void	SetTrySIGSEGV();
 	private:
-
+		static void Create();
+		static void KillMemory();
 	private:
 		CLog(void);
+		CLog(CLog const &_Copy);	//	복사 생성자로 접근을 막기 위해 정의를 하지 않았다.
+		~CLog(void);
 
 		std::string	m_strPath;
 		int			m_nfh;
 		bool		bFileOpen;
+
+		static bool mb_Destroy;
+		static CLog *mp_Ins;
 	};
 }
 

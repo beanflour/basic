@@ -14,6 +14,8 @@
 #include <AtlConv.h>
 #include <stdio.h>
 #include <signal.h>
+#include <new.h>
+#include <stdlib.h>
 
 
 #pragma warning(disable:4996)
@@ -21,6 +23,8 @@
 namespace BF
 {
 	S_CS CLog::m_cs;
+	bool CLog::mb_Destroy = false;
+	CLog* CLog::mp_Ins = nullptr;
 
 	CLog::CLog(void)
 		:	m_nfh(0)
@@ -92,19 +96,46 @@ namespace BF
 		SetTrySIGSEGV();
 	}
 
-
 	CLog::~CLog(void)
 	{
-		if(bFileOpen)
+		if (bFileOpen)
+		{
 			_close(m_nfh);
+			m_nfh = 0;
+			bFileOpen = false;
+		}
+
+		mb_Destroy = true;
 	}
 
 	CLog& CLog::getinstance()
 	{
-		CAutoLock lock(m_cs);
-		static CLog temp;
+		if (mb_Destroy)
+		{
+			new(mp_Ins) CLog;
+			atexit(KillMemory);
+			mp_Ins->AddLog("Destroy Log Use");
+			mb_Destroy = false;
+		}
+		else if (nullptr == mp_Ins)
+			Create();
 
-		return temp;
+		return *mp_Ins;
+		/*CAutoLock lock(m_cs);
+		static CLog ins;
+		return ins;*/
+	}
+	
+	void CLog::Create()
+	{
+		CAutoLock lock(m_cs);
+		static CLog ins;
+		mp_Ins = &ins;
+	}
+
+	void CLog::KillMemory()
+	{
+		mp_Ins->~CLog();
 	}
 
 	void	CLog::AddLog(char *_fmt, ...)

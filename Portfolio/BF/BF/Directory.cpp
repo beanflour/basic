@@ -14,21 +14,44 @@
 namespace BF
 {
 	S_CS CDirectory::m_cs;
+	bool CDirectory::mb_Destory = false;
+	CDirectory* CDirectory::mp_Ins = nullptr;
 
 	CDirectory&		CDirectory::getinstance()
 	{
-		CAutoLock lock(m_cs);
+		/*CAutoLock lock(m_cs);
 		static CDirectory temp;
-		return temp;
+		return temp;*/
+		if(mb_Destory)
+		{
+			new(mp_Ins) CDirectory;
+			atexit(KillMemory);
+			mb_Destory = false;
+		}
+		else if(nullptr == mp_Ins)
+			Create();
+
+		return *mp_Ins;
 	}
 
 	CDirectory::CDirectory(void)
 	{
 	}
 
-
 	CDirectory::~CDirectory(void)
 	{
+	}
+
+	void CDirectory::Create()
+	{
+		CAutoLock lock(m_cs);
+		static CDirectory temp;
+		mp_Ins = &temp;
+	}
+	void CDirectory::KillMemory()
+	{
+		if(nullptr != mp_Ins)
+			mp_Ins->~CDirectory();
 	}
 
 	bool	CDirectory::SetSaveDirectory(std::string const _strKey, std::string	const _strDirectory)
