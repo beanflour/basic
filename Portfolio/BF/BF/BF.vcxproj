@@ -94,6 +94,7 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="AutoLock.h" />
+    <ClInclude Include="ToBinary.h" />
     <ClInclude Include="WELL19937a.h" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +110,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ToBinary.cpp" />
     <ClCompile Include="WELL19937a.cpp" />
   </ItemGroup>
   <ItemGroup>
